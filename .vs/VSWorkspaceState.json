@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\config",
+    "\\config\\packages",
+    "\\src",
+    "\\src\\Controller",
+    "\\src\\Controller\\Api",
+    "\\src\\Entity",
+    "\\src\\Repository"
+  ],
+  "SelectedNode": "\\src\\Repository\\UserRepository.php",
+  "PreviewInSolutionExplorer": false
+}
