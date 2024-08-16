@@ -6,9 +6,10 @@
     "\\src",
     "\\src\\Controller",
     "\\src\\Controller\\Api",
+    "\\src\\DataFixtures",
     "\\src\\Entity",
     "\\src\\Repository"
   ],
-  "SelectedNode": "\\src\\Repository\\UserRepository.php",
+  "SelectedNode": "\\src\\Entity\\Photo.php",
   "PreviewInSolutionExplorer": false
 }
