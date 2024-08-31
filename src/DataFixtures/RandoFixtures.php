@@ -19,52 +19,97 @@ class RandoFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        // Création de l'utilisateur 1
+        // CrÃ©ation du premier utilisateur
         $user1 = new User();
-        $user1->setEmail('a@gmail.com');
+        $user1->setEmail('user1@example.com');
         $user1->setPassword($this->passwordHasher->hashPassword($user1, 'password1'));
         $manager->persist($user1);
 
-        // Création de l'utilisateur 2
+        // CrÃ©ation du second utilisateur
         $user2 = new User();
-        $user2->setEmail('q@gmail.com');
+        $user2->setEmail('user2@example.com');
         $user2->setPassword($this->passwordHasher->hashPassword($user2, 'password2'));
         $manager->persist($user2);
 
-        // Création de randonnées pour l'utilisateur 1
-        $rando1 = new Rando();
-        $rando1->setTitle('Randonnée du Mont Valérien')
-               ->setDescription('Une belle randonnée offrant une vue magnifique sur Paris.')
-               ->setLocation('Île-de-France')
-               ->setDistance(10.5)
-               ->setDuration('2h30')
-               ->setDifficulty('Moyenne')
-               ->setImage('http://localhost:8000/images/randos/rando1.jpg')
-               ->setUser($user1);  // Association avec l'utilisateur 1
-        $manager->persist($rando1);
+        // Liste des randonnÃ©es pour le premier utilisateur
+        $randosUser1 = [
+            [
+                'title' => 'RandonnÃ©e du Mont Blanc',
+                'description' => 'Une magnifique randonnÃ©e autour du Mont Blanc.',
+                'location' => 'Chamonix, France',
+                'distance' => 10.5,
+                'duration' => '5h30',
+                'difficulty' => 'Difficile',
+                'image' => 'mont_blanc.jpg',
+                'coordinates' => [45.832622, 6.865188]
+            ],
+            [
+                'title' => 'Tour du lac dâ€™Annecy',
+                'description' => 'RandonnÃ©e tranquille autour du lac dâ€™Annecy.',
+                'location' => 'Annecy, France',
+                'distance' => 14.2,
+                'duration' => '4h00',
+                'difficulty' => 'Facile',
+                'image' => 'lac_annecy.jpg',
+                'coordinates' => [45.899247, 6.129384]
+            ],
+        ];
 
-        $rando2 = new Rando();
-        $rando2->setTitle('Forêt de Fontainebleau')
-               ->setDescription('Explorez la magnifique forêt de Fontainebleau.')
-               ->setLocation('Île-de-France')
-               ->setDistance(15.0)
-               ->setDuration('4h00')
-               ->setDifficulty('Difficile')
-               ->setImage('http://localhost:8000/images/randos/rando1.jpg')
-               ->setUser($user1);  // Association avec l'utilisateur 1
-        $manager->persist($rando2);
+        // Liste des randonnÃ©es pour le second utilisateur
+        $randosUser2 = [
+            [
+                'title' => 'Sentier des douaniers',
+                'description' => 'Un parcours longeant la cÃ´te bretonne.',
+                'location' => 'Bretagne, France',
+                'distance' => 12.3,
+                'duration' => '6h00',
+                'difficulty' => 'Moyen',
+                'image' => 'sentier_douaniers.jpg',
+                'coordinates' => [48.831282, -3.458218]
+            ],
+            [
+                'title' => 'GR20',
+                'description' => 'Le cÃ©lÃ¨bre GR20 Ã  travers la Corse.',
+                'location' => 'Corse, France',
+                'distance' => 180.0,
+                'duration' => '15 jours',
+                'difficulty' => 'TrÃ¨s difficile',
+                'image' => 'gr20.jpg',
+                'coordinates' => [42.258745, 9.187408]
+            ],
+        ];
 
-        // Création d'une randonnée pour l'utilisateur 2
-        $rando3 = new Rando();
-        $rando3->setTitle('Randonnée du Parc de Saint-Cloud')
-               ->setDescription('Une balade relaxante dans le Parc de Saint-Cloud.')
-               ->setLocation('Île-de-France')
-               ->setDistance(5.0)
-               ->setDuration('1h30')
-               ->setDifficulty('Facile')
-               ->setImage('http://localhost:8000/images/randos/rando1.jpg')
-               ->setUser($user2);  // Association avec l'utilisateur 2
-        $manager->persist($rando3);
+        // Persist les randonnÃ©es pour le premier utilisateur
+        foreach ($randosUser1 as $randoData) {
+            $rando = new Rando();
+            $rando->setTitle($randoData['title']);
+            $rando->setDescription($randoData['description']);
+            $rando->setLocation($randoData['location']);
+            $rando->setDistance($randoData['distance']);
+            $rando->setDuration($randoData['duration']);
+            $rando->setDifficulty($randoData['difficulty']);
+            $rando->setImage($randoData['image']);
+            $rando->setCoordinates($randoData['coordinates']);
+            $rando->setUser($user1);  // Associer la randonnÃ©e Ã  l'utilisateur 1
+
+            $manager->persist($rando);
+        }
+
+        // Persist les randonnÃ©es pour le second utilisateur
+        foreach ($randosUser2 as $randoData) {
+            $rando = new Rando();
+            $rando->setTitle($randoData['title']);
+            $rando->setDescription($randoData['description']);
+            $rando->setLocation($randoData['location']);
+            $rando->setDistance($randoData['distance']);
+            $rando->setDuration($randoData['duration']);
+            $rando->setDifficulty($randoData['difficulty']);
+            $rando->setImage($randoData['image']);
+            $rando->setCoordinates($randoData['coordinates']);
+            $rando->setUser($user2);  // Associer la randonnÃ©e Ã  l'utilisateur 2
+
+            $manager->persist($rando);
+        }
 
         $manager->flush();
     }

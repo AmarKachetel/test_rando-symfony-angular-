@@ -52,28 +52,29 @@ class RegisterController extends AbstractController
     }
 
     #[Route('/api/login', name: 'api_login', methods: ['POST'])]
-    public function login(Request $request, JWTTokenManagerInterface $jwtManager): Response
-    {
-        $this->logger->info('Accessing /api/login endpoint.');
+public function login(Request $request, JWTTokenManagerInterface $jwtManager): Response
+{
+    $this->logger->info('Accessing /api/login endpoint.');
 
-        $data = json_decode($request->getContent(), true);
+    $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['email']) || !isset($data['password'])) {
-            $this->logger->error('Invalid login data provided.');
-            return new JsonResponse(['error' => 'Invalid data'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
-
-        if (!$user || !password_verify($data['password'], $user->getPassword())) {
-            $this->logger->warning('Invalid login attempt for email: ' . $data['email']);
-            return new JsonResponse(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
-        }
-
-        $this->logger->info('User logged in successfully: ' . $user->getEmail());
-
-        $token = $jwtManager->create($user);
-
-        return new JsonResponse(['token' => $token, 'username' => $user->getEmail()], Response::HTTP_OK);
+    if (!isset($data['email']) || !isset($data['password'])) {
+        $this->logger->error('Invalid login data provided.');
+        return new JsonResponse(['error' => 'Invalid data'], Response::HTTP_BAD_REQUEST);
     }
+
+    $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+
+    if (!$user || !password_verify($data['password'], $user->getPassword())) {
+        $this->logger->warning('Invalid login attempt for email: ' . $data['email']);
+        return new JsonResponse(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
+    }
+
+    $this->logger->info('User logged in successfully: ' . $user->getEmail());
+
+    $token = $jwtManager->create($user);
+
+    return new JsonResponse(['token' => $token, 'username' => $user->getEmail()], Response::HTTP_OK);
+}
+
 }
