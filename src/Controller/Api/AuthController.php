@@ -1,48 +1,32 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\JWTService;
 
 class AuthController extends AbstractController
 {
-    private $jwtService;
-
-    public function __construct(JWTService $jwtService)
+    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
+    public function login(Request $request, SessionInterface $session): JsonResponse
     {
-        $this->jwtService = $jwtService;
-    }
-
-    #[Route('/login', name: 'login', methods: ['POST'])]
-    public function login(Request $request, SessionInterface $session): Response
-    {
+        // Récupère les informations d'identification de la requête
         $credentials = json_decode($request->getContent(), true);
-        $token = $this->jwtService->validateJWT($credentials);
 
-        if ($token) {
-            // Extraire l'utilisateur du token
-            $userData = $this->jwtService->getUserDataFromToken($token);
+        // Ajouter la logique de validation et d'authentification ici
 
-            // Stocker les informations de l'utilisateur dans la session
-            $session->set('user', $userData);
-
-            return new Response('Login successful', Response::HTTP_OK);
-        }
-
-        return new Response('Invalid credentials', Response::HTTP_UNAUTHORIZED);
+        return new JsonResponse(['message' => 'Login successful'], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/logout', name: 'logout', methods: ['POST'])]
-    public function logout(SessionInterface $session): Response
+    #[Route('/api/logout', name: 'api_logout', methods: ['POST'])]
+    public function logout(SessionInterface $session): JsonResponse
     {
         // Supprimer les données de la session
         $session->invalidate();
 
-        return new Response('Logged out', Response::HTTP_OK);
+        return new JsonResponse(['message' => 'Logged out'], JsonResponse::HTTP_OK);
     }
 }
