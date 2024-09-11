@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Repository\ContactMessageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ContactMessageRepository::class)]
 class ContactMessage
@@ -13,18 +14,23 @@ class ContactMessage
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['contact_message:read', 'contact_message:write'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 100)]
+    #[Groups(['contact_message:read', 'contact_message:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 180)]
+    #[Groups(['contact_message:read', 'contact_message:write'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'text')]
+    #[Groups(['contact_message:read', 'contact_message:write'])]
     private ?string $message = null;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['contact_message:read'])]
     private ?\DateTimeInterface $createdAt = null;
 
     public function __construct()

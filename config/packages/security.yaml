@@ -33,6 +33,10 @@ security:
 
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/randos, roles: PUBLIC_ACCESS }
+        - { path: ^/api/posts, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/profile, roles: IS_AUTHENTICATED_FULLY } 
+        - { path: ^/api/user, roles: IS_AUTHENTICATED_FULLY }   
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

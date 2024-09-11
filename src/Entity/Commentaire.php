@@ -3,35 +3,49 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth; // Ajout de l'import pour MaxDepth
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection; // Ajout pour les collections
 use App\Entity\Avis;
 use App\Entity\User;
 
 #[ORM\Entity]
+#[ORM\HasLifecycleCallbacks] // Ajout pour activer les callbacks comme PrePersist
 class Commentaire
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    #[Groups(['commentaire:read', 'commentaire:write'])]
+    private ?int $id = null; // Ajout de type nullable
 
     #[ORM\Column(type: 'text')]
-    private $content;
+    #[Groups(['commentaire:read', 'commentaire:write'])]
+    private ?string $content = null; // Ajout de type nullable
 
     #[ORM\Column(type: 'datetime')]
-    private $createdAt;
+    #[Groups(['commentaire:read'])]
+    private ?\DateTimeInterface $createdAt = null; // Ajout de type nullable
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'commentaires')]
     #[ORM\JoinColumn(nullable: false)]
-    private $user;
+    #[Groups(['commentaire:read', 'user:read'])]
+    #[MaxDepth(1)]
+    private ?User $user = null; // Ajout de type nullable
 
     #[ORM\ManyToOne(targetEntity: Avis::class, inversedBy: 'commentaires')]
     #[ORM\JoinColumn(nullable: false)]
-    private $avis;
+    #[Groups(['commentaire:read', 'avis:read'])]
+    #[MaxDepth(1)]
+    private ?Avis $avis = null; // Ajout de type nullable
 
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        $this->createdAt = new \DateTime();
+        if ($this->createdAt === null) {
+            $this->createdAt = new \DateTime(); // Assure que la date de création est définie avant de persister
+        }
     }
 
     public function getId(): ?int

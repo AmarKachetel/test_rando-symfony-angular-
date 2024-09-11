@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\AvisRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth; 
 
 #[ORM\Entity(repositoryClass: AvisRepository::class)]
 class Avis
@@ -11,23 +13,31 @@ class Avis
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['avis:read', 'avis:write'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'text')]
+    #[Groups(['avis:read', 'avis:write'])]
     private string $commentaire;
 
     #[ORM\Column(type: 'integer')]
+    #[Groups(['avis:read', 'avis:write'])]
     private int $note;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['avis:read'])]
     private \DateTimeInterface $date;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'avis')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['avis:read', 'user:read'])]
+    #[MaxDepth(1)]
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Rando::class, inversedBy: 'avis')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['avis:read', 'rando:read'])]
+    #[MaxDepth(1)]
     private ?Rando $rando = null;
 
     // Getters et setters...

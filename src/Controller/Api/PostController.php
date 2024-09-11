@@ -23,24 +23,39 @@ class PostController extends AbstractController
         $this->logger = $logger;
     }
 
-    #[Route('/api/posts', name: 'api_posts', methods: ['GET'])]
-    public function getUserPosts(): JsonResponse
+    #[Route('/api/posts', name: 'api_all_posts', methods: ['GET'])]
+    public function getAllPosts(): JsonResponse
     {
         $this->logger->info('Accessing /api/posts endpoint.');
 
-        $user = $this->security->getUser();
+        // Récupérer tous les posts
+        $posts = $this->entityManager->getRepository(Post::class)->findAll();
 
+        $this->logger->info('Found ' . count($posts) . ' posts.');
+
+        return $this->json($posts);
+    }
+
+    #[Route('/api/user/posts', name: 'api_user_posts', methods: ['GET'])]
+    public function getUserPosts(): JsonResponse
+    {
+        $this->logger->info('Accessing /api/user/posts endpoint.');
+        
+        $user = $this->security->getUser();
+    
         if (!$user) {
             $this->logger->warning('User not authenticated.');
             return new JsonResponse(['error' => 'User not authenticated'], JsonResponse::HTTP_UNAUTHORIZED);
         }
-
+    
         $this->logger->info('Authenticated user: ' . $user->getEmail());
-
+    
         $posts = $this->entityManager->getRepository(Post::class)->findBy(['user' => $user]);
-
+    
         $this->logger->info('Found ' . count($posts) . ' posts for user.');
-
-        return $this->json($posts);
+    
+        return $this->json($posts, 200, [], ['groups' => ['post:read']]);
     }
+    
+    
 }

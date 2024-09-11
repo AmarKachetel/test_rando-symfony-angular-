@@ -4,6 +4,9 @@ namespace App\Entity;
 
 use App\Repository\ReservationRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth; 
+
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 class Reservation
@@ -11,20 +14,27 @@ class Reservation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['reservation:read', 'reservation:write'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['reservation:read', 'reservation:write'])]
     private \DateTimeInterface $reservationDate;
 
     #[ORM\Column(type: 'string', length: 50)]
+    #[Groups(['reservation:read', 'reservation:write'])]
     private string $status;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['reservation:read', 'user:read'])]
+    #[MaxDepth(1)]
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Rando::class, inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['reservation:read', 'rando:read'])]
+    #[MaxDepth(1)]
     private ?Rando $rando = null;
 
     // Getters et setters...

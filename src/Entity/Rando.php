@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth; 
 
 /**
  * Représente une randonnée disponible dans l'application.
@@ -85,6 +86,7 @@ class Rando
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'randos')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['rando:read', 'rando:write'])]
+    #[MaxDepth(1)]
     private ?User $user = null;
 
     /**
@@ -92,6 +94,7 @@ class Rando
      */
     #[ORM\OneToMany(mappedBy: 'rando', targetEntity: Reservation::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     #[Groups(['rando:read', 'rando:write'])]
+    #[MaxDepth(1)]
     private Collection $reservations;
 
     /**
@@ -99,6 +102,7 @@ class Rando
      */
     #[ORM\OneToMany(mappedBy: 'rando', targetEntity: Avis::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     #[Groups(['rando:read', 'rando:write'])]
+    #[MaxDepth(1)]
     private Collection $avis;
 
     public function __construct()

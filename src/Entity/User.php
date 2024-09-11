@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth; 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -15,33 +17,49 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'json')]
+    #[Groups(['user:read'])]
     private array $roles = [];
 
     #[ORM\Column(type: 'string')]
+    #[Groups(['user:write'])]
     private ?string $password = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Photo::class, orphanRemoval: true)]
+    #[Groups(['user:read'])]
+    #[MaxDepth(1)]
     private Collection $photos;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Post::class, orphanRemoval: true)]
+    #[Groups(['user:read'])]
+    #[MaxDepth(1)]
     private Collection $posts;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Rando::class, orphanRemoval: true)]
+    #[Groups(['user:read'])]
+    #[MaxDepth(1)]
     private Collection $randos;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Reservation::class, orphanRemoval: true)]
+    #[Groups(['user:read'])]
+    #[MaxDepth(1)]
     private Collection $reservations;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Avis::class, orphanRemoval: true)]
+    #[Groups(['user:read'])]
+    #[MaxDepth(1)]
     private Collection $avis;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Commentaire::class, orphanRemoval: true)]
+    #[Groups(['user:read'])]
+    #[MaxDepth(1)]
     private Collection $commentaires;
 
     public function __construct()

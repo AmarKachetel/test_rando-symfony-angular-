@@ -44,7 +44,7 @@ class UserController extends AbstractController
             'completedHikes' => 10, // Remplacez par une valeur réelle provenant de la base de données
         ];
 
-        return $this->json($profileData);
+        return $this->json($user, 200, [], ['groups' => ['user:read']]);
     }
 
     #[Route('/api/user/randos', name: 'api_user_randos', methods: ['GET'])]
