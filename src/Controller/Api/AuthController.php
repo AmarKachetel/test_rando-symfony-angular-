@@ -2,31 +2,49 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AuthController extends AbstractController
 {
-    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
-    public function login(Request $request, SessionInterface $session): JsonResponse
+    private $entityManager;
+    private $jwtManager;
+    private $passwordHasher;
+
+    public function __construct(EntityManagerInterface $entityManager, JWTTokenManagerInterface $jwtManager, UserPasswordHasherInterface $passwordHasher)
     {
-        // Récupère les informations d'identification de la requête
-        $credentials = json_decode($request->getContent(), true);
+        $this->entityManager = $entityManager;
+        $this->jwtManager = $jwtManager;
+        $this->passwordHasher = $passwordHasher;
+    }
 
-        // Ajouter la logique de validation et d'authentification ici
+    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
+    public function login(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        if (!isset($data['email']) || !isset($data['password'])) {
+            return new JsonResponse(['error' => 'Invalid data'], JsonResponse::HTTP_BAD_REQUEST);
+        }
 
-        return new JsonResponse(['message' => 'Login successful'], JsonResponse::HTTP_OK);
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+        if (!$user || !$this->passwordHasher->isPasswordValid($user, $data['password'])) {
+            return new JsonResponse(['error' => 'Invalid credentials'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $token = $this->jwtManager->create($user);
+
+        return new JsonResponse(['token' => $token, 'username' => $user->getEmail()], JsonResponse::HTTP_OK);
     }
 
     #[Route('/api/logout', name: 'api_logout', methods: ['POST'])]
-    public function logout(SessionInterface $session): JsonResponse
+    public function logout(): JsonResponse
     {
-        // Supprimer les données de la session
-        $session->invalidate();
-
         return new JsonResponse(['message' => 'Logged out'], JsonResponse::HTTP_OK);
     }
 }

@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Rando;
 use App\Entity\User;
+use App\Entity\Post;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -79,38 +80,51 @@ class RandoFixtures extends Fixture
             ],
         ];
 
-        // Persist les randonnées pour le premier utilisateur
-        foreach ($randosUser1 as $randoData) {
-            $rando = new Rando();
-            $rando->setTitle($randoData['title']);
-            $rando->setDescription($randoData['description']);
-            $rando->setLocation($randoData['location']);
-            $rando->setDistance($randoData['distance']);
-            $rando->setDuration($randoData['duration']);
-            $rando->setDifficulty($randoData['difficulty']);
-            $rando->setImage($randoData['image']);
-            $rando->setCoordinates($randoData['coordinates']);
-            $rando->setUser($user1);  // Associer la randonnée à l'utilisateur 1
+        // Persist les randonnées pour les utilisateurs
+        $this->persistRandos($manager, $randosUser1, $user1);
+        $this->persistRandos($manager, $randosUser2, $user2);
 
-            $manager->persist($rando);
-        }
+        // Ajouter des posts pour chaque utilisateur
+        $this->addPostsForUser($manager, $user1, [
+            ['title' => 'Mon premier post', 'content' => 'Contenu du premier post de user1.'],
+            ['title' => 'Deuxième post', 'content' => 'Contenu du deuxième post de user1.']
+        ]);
 
-        // Persist les randonnées pour le second utilisateur
-        foreach ($randosUser2 as $randoData) {
-            $rando = new Rando();
-            $rando->setTitle($randoData['title']);
-            $rando->setDescription($randoData['description']);
-            $rando->setLocation($randoData['location']);
-            $rando->setDistance($randoData['distance']);
-            $rando->setDuration($randoData['duration']);
-            $rando->setDifficulty($randoData['difficulty']);
-            $rando->setImage($randoData['image']);
-            $rando->setCoordinates($randoData['coordinates']);
-            $rando->setUser($user2);  // Associer la randonnée à l'utilisateur 2
-
-            $manager->persist($rando);
-        }
+        $this->addPostsForUser($manager, $user2, [
+            ['title' => 'Aventures en Bretagne', 'content' => 'Description des aventures en Bretagne de user2.'],
+            ['title' => 'Randonnée en Corse', 'content' => 'Rapport de la randonnée en Corse de user2.']
+        ]);
 
         $manager->flush();
+    }
+
+    private function persistRandos(ObjectManager $manager, array $randosData, User $user)
+    {
+        foreach ($randosData as $randoData) {
+            $rando = new Rando();
+            $rando->setTitle($randoData['title']);
+            $rando->setDescription($randoData['description']);
+            $rando->setLocation($randoData['location']);
+            $rando->setDistance($randoData['distance']);
+            $rando->setDuration($randoData['duration']);
+            $rando->setDifficulty($randoData['difficulty']);
+            $rando->setImage($randoData['image']);
+            $rando->setCoordinates($randoData['coordinates']);
+            $rando->setUser($user);  // Associer la randonnée à l'utilisateur
+
+            $manager->persist($rando);
+        }
+    }
+
+    private function addPostsForUser(ObjectManager $manager, User $user, array $postsData)
+    {
+        foreach ($postsData as $postData) {
+            $post = new Post();
+            $post->setTitle($postData['title']);
+            $post->setContent($postData['content']);
+            $post->setUser($user);  // Associer le post à l'utilisateur
+
+            $manager->persist($post);
+        }
     }
 }

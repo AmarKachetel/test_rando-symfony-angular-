@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class UserController extends AbstractController
 {
@@ -21,13 +22,11 @@ class UserController extends AbstractController
         $this->logger = $logger;
     }
 
-    #[Route('/api/profilez', name: 'api_user_profile', methods: ['GET'])]
+    #[Route('/api/profile', name: 'api_user_profile', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')] // Require authentication
     public function getProfile(Request $request): JsonResponse
     {
         $this->logger->info('Accessing /api/profile endpoint.');
-
-        $data = json_decode($request->getContent(), true);
-        dd($data);
 
         $user = $this->security->getUser();
 
@@ -49,6 +48,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/user/randos', name: 'api_user_randos', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')] // Require authentication
     public function getUserRandos(RandoRepository $randoRepository): JsonResponse
     {
         $this->logger->info('Accessing /api/user/randos endpoint.');

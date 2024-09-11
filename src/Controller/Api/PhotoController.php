@@ -8,18 +8,18 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class PhotoController extends AbstractController
 {
     private $entityManager;
-    private $security;
+    private $tokenStorage;
     private $logger;
 
-    public function __construct(EntityManagerInterface $entityManager, Security $security, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage, LoggerInterface $logger)
     {
         $this->entityManager = $entityManager;
-        $this->security = $security;
+        $this->tokenStorage = $tokenStorage;
         $this->logger = $logger;
     }
 
@@ -28,7 +28,7 @@ class PhotoController extends AbstractController
     {
         $this->logger->info('Accessing /api/photos endpoint.');
 
-        $user = $this->security->getUser();
+        $user = $this->getUser();  // Utilise Symfony pour obtenir l'utilisateur authentifié
 
         if (!$user) {
             $this->logger->warning('User not authenticated.');
