@@ -32,6 +32,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:write'])]
     private ?string $password = null;
 
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['user:read', 'user:write'])]
+    private bool $isValidated = false;
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Photo::class, orphanRemoval: true)]
     #[Groups(['user:read'])]
     #[MaxDepth(1)]
@@ -115,6 +119,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
+        return $this;
+    }
+
+    public function getIsValidated(): bool
+    {
+        return $this->isValidated;
+    }
+
+    public function setIsValidated(bool $isValidated): self
+    {
+        $this->isValidated = $isValidated;
+
         return $this;
     }
 

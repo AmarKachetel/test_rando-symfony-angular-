@@ -28,6 +28,10 @@ class Avis
     #[Groups(['avis:read'])]
     private \DateTimeInterface $date;
 
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['avis:read', 'avis:write'])]
+    private bool $approved = false;
+
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'avis')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['avis:read', 'user:read'])]
@@ -79,6 +83,18 @@ class Avis
     public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getApproved(): bool
+    {
+        return $this->approved;
+    }
+
+    public function setApproved(bool $approved): self
+    {
+        $this->approved = $approved;
 
         return $this;
     }

@@ -27,10 +27,11 @@ class RandoFixtures extends Fixture
         $user1->setPassword($this->passwordHasher->hashPassword($user1, 'password1'));
         $manager->persist($user1);
 
-        // Création du second utilisateur
+        // Création du second utilisateur avec le rôle ADMIN
         $user2 = new User();
         $user2->setEmail('user2@example.com');
         $user2->setPassword($this->passwordHasher->hashPassword($user2, 'password2'));
+        $user2->setRoles(['ROLE_USER', 'ROLE_ADMIN']); // Ajouter le rôle ADMIN
         $manager->persist($user2);
 
         // Liste des randonnées pour le premier utilisateur
@@ -152,3 +153,4 @@ class RandoFixtures extends Fixture
         }
     }
 }
+
