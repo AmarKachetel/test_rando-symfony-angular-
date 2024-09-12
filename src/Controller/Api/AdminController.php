@@ -55,7 +55,20 @@ class AdminController extends AbstractController
 
         return new JsonResponse(['message' => 'Randonnée créée avec succès.'], JsonResponse::HTTP_CREATED);
     }
-
+    
+    #[Route('/api/admin/randos/{id}', name: 'admin_get_rando', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function getRandoById(int $id, RandoRepository $randoRepository): JsonResponse
+    {
+        $rando = $randoRepository->find($id);
+    
+        if (!$rando) {
+            return new JsonResponse(['error' => 'Randonnée non trouvée.'], JsonResponse::HTTP_NOT_FOUND);
+        }
+    
+        return $this->json($rando, 200, [], ['groups' => ['rando:read']]);
+    }
+    
     #[Route('/api/admin/randos/{id}', name: 'admin_update_rando', methods: ['PUT'])]
     #[IsGranted('ROLE_ADMIN')]
     public function updateRando(int $id, Request $request, RandoRepository $randoRepository, EntityManagerInterface $entityManager): JsonResponse
@@ -85,16 +98,17 @@ class AdminController extends AbstractController
     public function deleteRando(int $id, RandoRepository $randoRepository, EntityManagerInterface $entityManager): JsonResponse
     {
         $rando = $randoRepository->find($id);
-
+    
         if (!$rando) {
             return new JsonResponse(['error' => 'Randonnée non trouvée.'], JsonResponse::HTTP_NOT_FOUND);
         }
-
+    
         $entityManager->remove($rando);
         $entityManager->flush();
-
+    
         return new JsonResponse(['message' => 'Randonnée supprimée avec succès.']);
     }
+    
 
     #[Route('/api/admin/reviews/{id}/approve', name: 'admin_approve_review', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
