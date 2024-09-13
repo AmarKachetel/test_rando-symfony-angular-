@@ -31,7 +31,7 @@ class RandoFixtures extends Fixture
         $user2 = new User();
         $user2->setEmail('user2@example.com');
         $user2->setPassword($this->passwordHasher->hashPassword($user2, 'password2'));
-        $user2->setRoles(['ROLE_USER', 'ROLE_ADMIN']); // Ajouter le rôle ADMIN
+        $user2->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
         $manager->persist($user2);
 
         // Liste des randonnées pour le premier utilisateur
@@ -43,7 +43,7 @@ class RandoFixtures extends Fixture
                 'distance' => 10.5,
                 'duration' => '5h30',
                 'difficulty' => 'Difficile',
-                'image' => 'rando1.jpg',
+                'image' => '/images/randos/rando1.jpg',
                 'coordinates' => [45.832622, 6.865188]
             ],
             [
@@ -53,9 +53,39 @@ class RandoFixtures extends Fixture
                 'distance' => 14.2,
                 'duration' => '4h00',
                 'difficulty' => 'Facile',
-                'image' => 'rando2.jpg',
+                'image' => '/images/randos/rando2.jpg',
                 'coordinates' => [45.899247, 6.129384]
             ],
+            [
+                'title' => 'Circuit des 25 bosses',
+                'description' => 'Un parcours difficile à travers les forêts de Fontainebleau.',
+                'location' => 'Fontainebleau, France',
+                'distance' => 16.0,
+                'duration' => '7h00',
+                'difficulty' => 'Très difficile',
+                'image' => '/images/randos/rando2.jpg',
+                'coordinates' => [48.404147, 2.697014]
+            ],
+            [
+                'title' => 'Lacs de Plitvice',
+                'description' => 'Une randonnée pittoresque autour des lacs de Plitvice.',
+                'location' => 'Croatie',
+                'distance' => 8.0,
+                'duration' => '3h30',
+                'difficulty' => 'Moyen',
+                'image' => '/images/randos/rando2.jpg',
+                'coordinates' => [44.880372, 15.617781]
+            ],
+            [
+                'title' => 'Randonnée de l’Obiou',
+                'description' => 'Un parcours exigeant dans les Alpes françaises.',
+                'location' => 'Alpes, France',
+                'distance' => 12.7,
+                'duration' => '6h00',
+                'difficulty' => 'Difficile',
+                'image' => '/images/randos/rando1.jpg',
+                'coordinates' => [44.820297, 5.895989]
+            ]
         ];
 
         // Liste des randonnées pour le second utilisateur
@@ -67,7 +97,7 @@ class RandoFixtures extends Fixture
                 'distance' => 12.3,
                 'duration' => '6h00',
                 'difficulty' => 'Moyen',
-                'image' => 'rando1.jpg',
+                'image' => '/images/randos/rando2.jpg',
                 'coordinates' => [48.831282, -3.458218]
             ],
             [
@@ -77,9 +107,39 @@ class RandoFixtures extends Fixture
                 'distance' => 180.0,
                 'duration' => '15 jours',
                 'difficulty' => 'Très difficile',
-                'image' => 'rando2.jpg',
+                'image' => '/images/randos/rando1.jpg',
                 'coordinates' => [42.258745, 9.187408]
             ],
+            [
+                'title' => 'Tour des glaciers',
+                'description' => 'Randonnée au pied des glaciers des Alpes.',
+                'location' => 'Alpes, France',
+                'distance' => 45.0,
+                'duration' => '3 jours',
+                'difficulty' => 'Très difficile',
+                'image' => '/images/randos/rando1.jpg',
+                'coordinates' => [45.9222, 6.8694]
+            ],
+            [
+                'title' => 'Chemin de Saint-Jacques-de-Compostelle',
+                'description' => 'Pèlerinage mythique à travers la France et l’Espagne.',
+                'location' => 'France - Espagne',
+                'distance' => 800.0,
+                'duration' => '35 jours',
+                'difficulty' => 'Moyen',
+                'image' => '/images/randos/rando2.jpg',
+                'coordinates' => [42.877742, -8.544844]
+            ],
+            [
+                'title' => 'Mont Ventoux',
+                'description' => 'Ascension du Mont Ventoux, un sommet emblématique de Provence.',
+                'location' => 'Provence, France',
+                'distance' => 21.0,
+                'duration' => '8h00',
+                'difficulty' => 'Difficile',
+                'image' => '/images/randos/rando1.jpg',
+                'coordinates' => [44.172359, 5.278526]
+            ]
         ];
 
         // Persist les randonnées pour les utilisateurs
@@ -153,4 +213,3 @@ class RandoFixtures extends Fixture
         }
     }
 }
-
