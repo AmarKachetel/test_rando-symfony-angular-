@@ -47,4 +47,18 @@ class AuthController extends AbstractController
     {
         return new JsonResponse(['message' => 'Logged out'], JsonResponse::HTTP_OK);
     }
+
+    #[Route('/api/token/refresh', name: 'api_refresh_token', methods: ['POST'])]
+    public function refreshToken(JWTTokenManagerInterface $jwtManager): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof UserInterface) {
+            return new JsonResponse(['error' => 'Invalid user'], 401);
+        }
+
+        $newToken = $jwtManager->create($user);
+
+        return new JsonResponse(['token' => $newToken]);
+    }
 }

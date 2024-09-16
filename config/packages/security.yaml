@@ -39,7 +39,10 @@ security:
         - { path: ^/api/profile, roles: IS_AUTHENTICATED_FULLY } 
         - { path: ^/api/user, roles: IS_AUTHENTICATED_FULLY }   
         - { path: ^/api/admin, roles: ROLE_ADMIN } 
+        - { path: ^/api/reservations, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/token/refresh, roles: IS_AUTHENTICATED_FULLY }
+
 
 when@test:
     security:

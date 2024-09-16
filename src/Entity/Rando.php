@@ -93,8 +93,8 @@ class Rando
      * Collection des réservations associées à la randonnée.
      */
     #[ORM\OneToMany(mappedBy: 'rando', targetEntity: Reservation::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
-    #[Groups(['rando:read', 'rando:write'])]
-    #[MaxDepth(1)]
+    #[Groups(['rando:read'])]
+    #[MaxDepth(1)] // Limite la profondeur de la sérialisation pour éviter les références circulaires
     private Collection $reservations;
 
     /**
