@@ -61,14 +61,59 @@ class ReservationController extends AbstractController
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function listUserReservations(ReservationRepository $reservationRepository): JsonResponse
     {
-        $user = $this->getUser();
+       $user = $this->getUser();
 
-        if (!$user instanceof User) {
-            return $this->json(['message' => 'User not found.'], 404);
-        }
+       if (!$user instanceof User) {
+           return $this->json(['message' => 'User not found.'], 404);
+       }
 
-        $reservations = $reservationRepository->findBy(['user' => $user]);
+       // Récupérer les réservations de l'utilisateur
+       $reservations = $reservationRepository->findBy(['user' => $user]);
 
-        return $this->json($reservations, 200, [], ['groups' => 'reservation:read']);
+       // Personnaliser la sérialisation pour inclure les détails de la randonnée
+       $reservationsData = array_map(function (Reservation $reservation) {
+           return [
+               'id' => $reservation->getId(),
+               'reservationDate' => $reservation->getReservationDate()->format('Y-m-d H:i:s'),
+               'status' => $reservation->getStatus(),
+              'rando' => [
+                  'id' => $reservation->getRando()->getId(),
+                  'title' => $reservation->getRando()->getTitle(),
+                  'description' => $reservation->getRando()->getDescription(),
+                  'location' => $reservation->getRando()->getLocation(),
+                  'distance' => $reservation->getRando()->getDistance(),
+                  'duration' => $reservation->getRando()->getDuration(),
+                  'difficulty' => $reservation->getRando()->getDifficulty(),
+                  'image' => $reservation->getRando()->getImage(),
+              ]
+          ];
+      }, $reservations);
+
+       return $this->json($reservationsData);
     }
+
+
+    #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function delete(int $id, ReservationRepository $reservationRepository): JsonResponse
+    {
+        // Rechercher la réservation par son identifiant
+        $reservation = $reservationRepository->find($id);
+    
+        if (!$reservation) {
+            return $this->json(['message' => 'Reservation not found.'], 404);
+        }
+    
+        // Vérifier si la réservation appartient à l'utilisateur connecté
+        if ($reservation->getUser() !== $this->getUser()) {
+            return $this->json(['message' => 'Unauthorized'], 403);
+        }
+    
+        // Supprimer la réservation
+        $this->entityManager->remove($reservation);
+        $this->entityManager->flush();
+    
+        return $this->json(['message' => 'Reservation deleted successfully'], 200);
+    }
+    
 }

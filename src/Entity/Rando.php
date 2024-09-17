@@ -94,14 +94,14 @@ class Rando
      */
     #[ORM\OneToMany(mappedBy: 'rando', targetEntity: Reservation::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     #[Groups(['rando:read'])]
-    #[MaxDepth(1)] // Limite la profondeur de la sérialisation pour éviter les références circulaires
+    #[MaxDepth(1)]
     private Collection $reservations;
 
     /**
      * Collection des avis associés à la randonnée.
      */
     #[ORM\OneToMany(mappedBy: 'rando', targetEntity: Avis::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
-    #[Groups(['rando:read', 'rando:write'])]
+    #[Groups(['rando:read'])]
     #[MaxDepth(1)]
     private Collection $avis;
 

@@ -27,13 +27,13 @@ class Reservation
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['reservation:read', 'user:read'])]
+    #[Groups(['reservation:read'])]
     #[MaxDepth(1)]
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Rando::class, inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['reservation:read', 'rando:read'])]
+    #[Groups(['reservation:read'])]
     #[MaxDepth(1)]
     private ?Rando $rando = null;
 
