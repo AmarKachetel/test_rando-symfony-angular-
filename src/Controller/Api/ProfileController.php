@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\DTO\UserProfileDTO;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +20,10 @@ class ProfileController extends AbstractController
             return new JsonResponse(['error' => 'User not authenticated'], JsonResponse::HTTP_UNAUTHORIZED);
         }
     
-        return $this->json($user, 200, [], ['groups' => ['user:read']]);
+        // Utiliser le DTO pour le profil utilisateur
+        $userProfileDTO = new UserProfileDTO($user);
+    
+        return $this->json($userProfileDTO);
     }
     
 }

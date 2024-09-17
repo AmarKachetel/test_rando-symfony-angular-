@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Post;
+use App\DTO\PostDTO; 
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,7 +41,7 @@ class PostController extends AbstractController
     public function getUserPosts(): JsonResponse
     {
         $this->logger->info('Accessing /api/user/posts endpoint.');
-        
+    
         $user = $this->security->getUser();
     
         if (!$user) {
@@ -50,12 +51,25 @@ class PostController extends AbstractController
     
         $this->logger->info('Authenticated user: ' . $user->getEmail());
     
+        // Récupérer les posts de l'utilisateur
         $posts = $this->entityManager->getRepository(Post::class)->findBy(['user' => $user]);
     
         $this->logger->info('Found ' . count($posts) . ' posts for user.');
     
-        return $this->json($posts, 200, [], ['groups' => ['post:read']]);
+        // Convertir les entités Post en instances de PostDTO
+        $postDTOs = array_map(function (Post $post) {
+            return new PostDTO(
+                $post->getId(),
+                $post->getTitle(),
+                $post->getContent(),
+                $post->getCreatedAt(),
+                $post->getUser()
+            );
+        }, $posts);
+    
+        return $this->json($postDTOs);
     }
+    
     
     
 }

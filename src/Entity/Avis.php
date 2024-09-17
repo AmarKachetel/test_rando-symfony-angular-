@@ -34,13 +34,13 @@ class Avis
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'avis')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['avis:read', 'user:read'])]
+    #[Groups(['avis:read'])]
     #[MaxDepth(1)]
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Rando::class, inversedBy: 'avis')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['avis:read', 'rando:read'])]
+    #[Groups(['avis:read'])]
     #[MaxDepth(1)]
     private ?Rando $rando = null;
 

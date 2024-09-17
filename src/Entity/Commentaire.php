@@ -30,13 +30,13 @@ class Commentaire
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'commentaires')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['commentaire:read', 'user:read'])]
+    #[Groups(['commentaire:read'])]
     #[MaxDepth(1)]
     private ?User $user = null; // Ajout de type nullable
 
     #[ORM\ManyToOne(targetEntity: Avis::class, inversedBy: 'commentaires')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['commentaire:read', 'avis:read'])]
+    #[Groups(['commentaire:read'])]
     #[MaxDepth(1)]
     private ?Avis $avis = null; // Ajout de type nullable
 

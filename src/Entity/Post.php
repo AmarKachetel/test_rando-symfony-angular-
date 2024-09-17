@@ -33,12 +33,12 @@ class Post
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['post:read', 'user:read'])]
+    #[Groups(['post:read'])]
     #[MaxDepth(1)]
     private $user;
 
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Commentaire::class, orphanRemoval: true)]
-    #[Groups(['post:read'])]
+    #[Groups(['post:read'])] 
     #[MaxDepth(1)]
     private Collection $commentaires;
 
