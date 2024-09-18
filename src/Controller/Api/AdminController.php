@@ -35,6 +35,15 @@ class AdminController extends AbstractController
 
         return new JsonResponse(['message' => 'Utilisateur validé avec succès.']);
     }
+    
+    #[Route('/api/admin/randos', name: 'admin_get_all_randos', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function getAllRandos(RandoRepository $randoRepository): JsonResponse
+    {
+        $randos = $randoRepository->findAll();
+    
+        return $this->json($randos, 200, [], ['groups' => ['rando:read']]);
+    }
 
     #[Route('/api/admin/randos', name: 'admin_create_rando', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
