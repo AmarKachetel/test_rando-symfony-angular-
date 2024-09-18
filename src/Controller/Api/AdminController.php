@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\User;
 use App\Entity\Rando;
 use App\Entity\Avis;
+use App\DTO\UserValidationDTO; 
 use App\Repository\UserRepository;
 use App\Repository\RandoRepository;
 use App\Repository\AvisRepository;
@@ -35,7 +36,7 @@ class AdminController extends AbstractController
 
         return new JsonResponse(['message' => 'Utilisateur validé avec succès.']);
     }
-    
+
     #[Route('/api/admin/randos', name: 'admin_get_all_randos', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN')]
     public function getAllRandos(RandoRepository $randoRepository): JsonResponse
@@ -76,6 +77,37 @@ class AdminController extends AbstractController
         }
     
         return $this->json($rando, 200, [], ['groups' => ['rando:read']]);
+    }
+
+    #[Route('/api/admin/users/unvalidated', name: 'admin_get_unvalidated_users', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function getUnvalidatedUsers(UserRepository $userRepository): JsonResponse
+    {
+        $unvalidatedUsers = $userRepository->findBy(['isValidated' => false]);
+
+        // Convert each user to a DTO
+        $userDTOs = array_map(function ($user) {
+            return new UserValidationDTO($user);
+        }, $unvalidatedUsers);
+
+        return $this->json($userDTOs);
+    }
+
+    #[Route('/api/admin/reject-user/{id}', name: 'admin_reject_user', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function rejectUser(int $id, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
+    {
+       $user = $userRepository->find($id);
+
+       if (!$user) {
+            return new JsonResponse(['error' => 'Utilisateur non trouvé.'], JsonResponse::HTTP_NOT_FOUND);
+       }
+
+       // You can decide to either delete the user or mark them as rejected.
+       $entityManager->remove($user);
+       $entityManager->flush();
+
+       return new JsonResponse(['message' => 'Utilisateur rejeté avec succès.']);
     }
     
     #[Route('/api/admin/randos/{id}', name: 'admin_update_rando', methods: ['PUT'])]
