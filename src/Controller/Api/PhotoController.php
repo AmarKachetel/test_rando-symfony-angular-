@@ -3,10 +3,14 @@
 namespace App\Controller\Api;
 
 use App\Entity\Photo;
+use App\Entity\Rando;
+use App\DTO\PhotoDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -26,35 +30,79 @@ class PhotoController extends AbstractController
     #[Route('/api/photos', name: 'api_all_photos', methods: ['GET'])]
     public function getAllPhotos(): JsonResponse
     {
-        $this->logger->info('Accessing /api/photos endpoint.');
-
-        // Récupérer toutes les photos
         $photos = $this->entityManager->getRepository(Photo::class)->findAll();
+        $photoDTOs = array_map(fn($photo) => new PhotoDTO($photo), $photos);
 
-        $this->logger->info('Found ' . count($photos) . ' photos.');
-
-        return $this->json($photos);
+        return $this->json($photoDTOs);
     }
 
     #[Route('/api/user/photos', name: 'api_user_photos', methods: ['GET'])]
     public function getUserPhotos(): JsonResponse
     {
-    $this->logger->info('Accessing /api/user/photos endpoint.');
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not authenticated'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
 
-    $user = $this->getUser();
+        $photos = $this->entityManager->getRepository(Photo::class)->findBy(['user' => $user]);
+        $photoDTOs = array_map(fn($photo) => new PhotoDTO($photo), $photos);
 
-    if (!$user) {
-        $this->logger->warning('User not authenticated.');
-        return new JsonResponse(['error' => 'User not authenticated'], JsonResponse::HTTP_UNAUTHORIZED);
+        return $this->json($photoDTOs);
     }
 
-    $this->logger->info('Authenticated user: ' . $user->getEmail());
-
-    $photos = $this->entityManager->getRepository(Photo::class)->findBy(['user' => $user]);
-
-    $this->logger->info('Found ' . count($photos) . ' photos for user.');
-
-    return $this->json($photos, 200, [], ['groups' => ['photo:read']]);
+    #[Route('/api/photos/upload/{randoId}', name: 'api_upload_photo', methods: ['POST'])]
+    public function uploadPhoto(Request $request, int $randoId, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not authenticated'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+    
+        $rando = $entityManager->getRepository(Rando::class)->find($randoId);
+        if (!$rando) {
+            return new JsonResponse(['error' => 'Rando not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+    
+        $file = $request->files->get('file');
+        $description = $request->request->get('description');  // Get the description from the form
+    
+        if ($file) {
+            $filename = md5(uniqid()) . '.' . $file->guessExtension();
+            $file->move($this->getParameter('photos_directory'), $filename);
+    
+            $photo = new Photo();
+            $photo->setUser($user);
+            $photo->setRando($rando);
+            $photo->setUrl('/uploads/photos/' . $filename);
+            $photo->setDescription($description); // Set description
+            
+            $entityManager->persist($photo);
+            $entityManager->flush();
+    
+            $photoDTO = new PhotoDTO($photo);
+            return $this->json($photoDTO, JsonResponse::HTTP_CREATED);
+        }
+    
+        return new JsonResponse(['error' => 'No file uploaded'], JsonResponse::HTTP_BAD_REQUEST);
     }
+    
+    #[Route('/api/photos/delete/{photoId}', name: 'api_delete_photo', methods: ['DELETE'])]
+    public function deletePhoto(int $photoId): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not authenticated'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
 
+        $photo = $this->entityManager->getRepository(Photo::class)->find($photoId);
+        if (!$photo || $photo->getUser() !== $user) {
+            return new JsonResponse(['error' => 'Photo not found or unauthorized'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        // Remove the photo entity
+        $this->entityManager->remove($photo);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'Photo deleted successfully'], JsonResponse::HTTP_OK);
+    }
 }

@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\MaxDepth; 
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
  * Représente une randonnée disponible dans l'application.
@@ -105,10 +105,19 @@ class Rando
     #[MaxDepth(1)]
     private Collection $avis;
 
+    /**
+     * Collection des photos associées à la randonnée.
+     */
+    #[ORM\OneToMany(mappedBy: 'rando', targetEntity: Photo::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
+    #[Groups(['rando:read'])]
+    #[MaxDepth(1)]
+    private Collection $photos;
+
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
         $this->avis = new ArrayCollection();
+        $this->photos = new ArrayCollection();
     }
 
     /**
@@ -133,7 +142,6 @@ class Rando
     public function setTitle(string $title): self
     {
         $this->title = $title;
-
         return $this;
     }
 
@@ -151,7 +159,6 @@ class Rando
     public function setDescription(string $description): self
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -169,7 +176,6 @@ class Rando
     public function setLocation(string $location): self
     {
         $this->location = $location;
-
         return $this;
     }
 
@@ -187,7 +193,6 @@ class Rando
     public function setDistance(float $distance): self
     {
         $this->distance = $distance;
-
         return $this;
     }
 
@@ -205,7 +210,6 @@ class Rando
     public function setDuration(string $duration): self
     {
         $this->duration = $duration;
-
         return $this;
     }
 
@@ -223,7 +227,6 @@ class Rando
     public function setDifficulty(string $difficulty): self
     {
         $this->difficulty = $difficulty;
-
         return $this;
     }
 
@@ -241,7 +244,6 @@ class Rando
     public function setImage(string $image): self
     {
         $this->image = $image;
-
         return $this;
     }
 
@@ -259,7 +261,6 @@ class Rando
     public function setCoordinates(?array $coordinates): self
     {
         $this->coordinates = $coordinates;
-
         return $this;
     }
 
@@ -277,7 +278,6 @@ class Rando
     public function setUser(?User $user): self
     {
         $this->user = $user;
-
         return $this;
     }
 
@@ -308,7 +308,6 @@ class Rando
     public function removeReservation(Reservation $reservation): self
     {
         if ($this->reservations->removeElement($reservation)) {
-            // Définit le propriétaire à null si nécessaire
             if ($reservation->getRando() === $this) {
                 $reservation->setRando(null);
             }
@@ -344,9 +343,43 @@ class Rando
     public function removeAvis(Avis $avis): self
     {
         if ($this->avis->removeElement($avis)) {
-            // Définit le propriétaire à null si nécessaire
             if ($avis->getRando() === $this) {
                 $avis->setRando(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Obtient la collection des photos de la randonnée.
+     */
+    public function getPhotos(): Collection
+    {
+        return $this->photos;
+    }
+
+    /**
+     * Ajoute une photo à la randonnée.
+     */
+    public function addPhoto(Photo $photo): self
+    {
+        if (!$this->photos->contains($photo)) {
+            $this->photos[] = $photo;
+            $photo->setRando($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Supprime une photo de la randonnée.
+     */
+    public function removePhoto(Photo $photo): self
+    {
+        if ($this->photos->removeElement($photo)) {
+            if ($photo->getRando() === $this) {
+                $photo->setRando(null);
             }
         }
 

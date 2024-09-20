@@ -10,6 +10,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+
 class RandoFixtures extends Fixture
 {
     private $passwordHasher;
@@ -35,7 +36,7 @@ class RandoFixtures extends Fixture
         $manager->persist($user2);
 
         // Liste des randonnées pour le premier utilisateur
-        $randosUser1 = [
+        $randosUser1 = $this->persistRandos($manager, [
             [
                 'title' => 'Randonnée du Mont Blanc',
                 'description' => 'Une magnifique randonnée autour du Mont Blanc.',
@@ -86,10 +87,10 @@ class RandoFixtures extends Fixture
                 'image' => '/images/randos/rando1.jpg',
                 'coordinates' => [44.820297, 5.895989]
             ]
-        ];
+        ], $user1);
 
         // Liste des randonnées pour le second utilisateur
-        $randosUser2 = [
+        $randosUser2 = $this->persistRandos($manager, [
             [
                 'title' => 'Sentier des douaniers',
                 'description' => 'Un parcours longeant la côte bretonne.',
@@ -140,11 +141,18 @@ class RandoFixtures extends Fixture
                 'image' => '/images/randos/rando1.jpg',
                 'coordinates' => [44.172359, 5.278526]
             ]
-        ];
+        ], $user2);
 
-        // Persist les randonnées pour les utilisateurs
-        $this->persistRandos($manager, $randosUser1, $user1);
-        $this->persistRandos($manager, $randosUser2, $user2);
+        // Ajouter des photos pour chaque utilisateur
+        $this->addPhotosForUser($manager, $user1, [
+            ['url' => '/images/randos/rando1.jpg', 'description' => 'Photo de la randonnée du Mont Blanc.'],
+            ['url' => '/images/randos/rando2.jpg', 'description' => 'Photo de la randonnée du lac d’Annecy.']
+        ], $randosUser1[0]);
+
+        $this->addPhotosForUser($manager, $user2, [
+            ['url' => '/images/randos/rando1.jpg', 'description' => 'Photo de la randonnée Sentier des douaniers.'],
+            ['url' => '/images/randos/rando2.jpg', 'description' => 'Photo de la randonnée GR20.']
+        ], $randosUser2[0]);
 
         // Ajouter des posts pour chaque utilisateur
         $this->addPostsForUser($manager, $user1, [
@@ -157,22 +165,13 @@ class RandoFixtures extends Fixture
             ['title' => 'Randonnée en Corse', 'content' => 'Rapport de la randonnée en Corse de user2.']
         ]);
 
-        // Ajouter des photos pour chaque utilisateur
-        $this->addPhotosForUser($manager, $user1, [
-            ['url' => '/images/randos/rando1.jpg', 'description' => 'Photo de la randonnée du Mont Blanc.'],
-            ['url' => '/images/randos/rando2.jpg', 'description' => 'Photo de la randonnée du lac d’Annecy.']
-        ]);
-
-        $this->addPhotosForUser($manager, $user2, [
-            ['url' => '/images/randos/rando1.jpg', 'description' => 'Photo de la randonnée Sentier des douaniers.'],
-            ['url' => '/images/randos/rando2.jpg', 'description' => 'Photo de la randonnée GR20.']
-        ]);
-
         $manager->flush();
     }
 
-    private function persistRandos(ObjectManager $manager, array $randosData, User $user)
+    private function persistRandos(ObjectManager $manager, array $randosData, User $user): array
     {
+        $randos = [];
+
         foreach ($randosData as $randoData) {
             $rando = new Rando();
             $rando->setTitle($randoData['title']);
@@ -183,10 +182,13 @@ class RandoFixtures extends Fixture
             $rando->setDifficulty($randoData['difficulty']);
             $rando->setImage($randoData['image']);
             $rando->setCoordinates($randoData['coordinates']);
-            $rando->setUser($user);  // Associer la randonnée à l'utilisateur
+            $rando->setUser($user);
 
             $manager->persist($rando);
+            $randos[] = $rando;
         }
+
+        return $randos;
     }
 
     private function addPostsForUser(ObjectManager $manager, User $user, array $postsData)
@@ -195,21 +197,26 @@ class RandoFixtures extends Fixture
             $post = new Post();
             $post->setTitle($postData['title']);
             $post->setContent($postData['content']);
-            $post->setUser($user);  // Associer le post à l'utilisateur
+            $post->setUser($user);
 
             $manager->persist($post);
         }
     }
 
-    private function addPhotosForUser(ObjectManager $manager, User $user, array $photosData)
+    private function addPhotosForUser(ObjectManager $manager, User $user, array $photosData, Rando $rando = null)
     {
         foreach ($photosData as $photoData) {
             $photo = new Photo();
-            $photo->setUrl($photoData['url']); // Utiliser le chemin de la photo
+            $photo->setUrl($photoData['url']);
             $photo->setDescription($photoData['description']);
-            $photo->setUser($user); // Associer la photo à l'utilisateur
+            $photo->setUser($user);
+
+            if ($rando) {
+                $photo->setRando($rando);
+            }
 
             $manager->persist($photo);
         }
     }
+    
 }
