@@ -42,6 +42,8 @@ security:
         - { path: ^/api/reservations, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api/token/refresh, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/avis/\d+, roles: PUBLIC_ACCESS } # Pour permettre la récupération des avis
+        - { path: ^/api/avis$, roles: IS_AUTHENTICATED_FULLY } # Pour restreindre l'ajout d'avis à des utilisateurs authentifiés
 
 
 when@test:
