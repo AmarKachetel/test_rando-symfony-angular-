@@ -151,35 +151,60 @@ class AdminController extends AbstractController
     }
     
 
-    #[Route('/api/admin/reviews/{id}/approve', name: 'admin_approve_review', methods: ['POST'])]
+    #[Route('/api/admin/avis', name: 'admin_get_avis_to_moderate', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN')]
-    public function approveReview(int $id, AvisRepository $avisRepository, EntityManagerInterface $entityManager): JsonResponse
+    public function getAvisToModerate(AvisRepository $avisRepository): JsonResponse
     {
-        $review = $avisRepository->find($id);
+        $avisList = $avisRepository->findBy(['approved' => false]);
+        return $this->json($avisList, JsonResponse::HTTP_OK, [], ['groups' => 'avis:read']);
+    }
 
-        if (!$review) {
+    #[Route('/api/admin/avis/approve/{id}', name: 'admin_approve_avis', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function approveAvis(int $id, AvisRepository $avisRepository, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $avis = $avisRepository->find($id);
+
+        if (!$avis) {
             return new JsonResponse(['error' => 'Avis non trouvé.'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $review->setApproved(true); // Assurez-vous d'avoir un champ "approved" dans l'entité Avis
+        $avis->setApproved(true); // Marquer l'avis comme approuvé
         $entityManager->flush();
 
         return new JsonResponse(['message' => 'Avis approuvé avec succès.']);
     }
 
-    #[Route('/api/admin/reviews/{id}', name: 'admin_delete_review', methods: ['DELETE'])]
+    #[Route('/api/admin/avis/reject/{id}', name: 'admin_reject_avis', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
-    public function deleteReview(int $id, AvisRepository $avisRepository, EntityManagerInterface $entityManager): JsonResponse
+    public function rejectAvis(int $id, AvisRepository $avisRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        $review = $avisRepository->find($id);
+        $avis = $avisRepository->find($id);
 
-        if (!$review) {
+        if (!$avis) {
             return new JsonResponse(['error' => 'Avis non trouvé.'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $entityManager->remove($review);
+        $entityManager->remove($avis);
         $entityManager->flush();
 
-        return new JsonResponse(['message' => 'Avis supprimé avec succès.']);
+        return new JsonResponse(['message' => 'Avis rejeté avec succès.']);
     }
+
+    #[Route('/api/avis/{randoId}', name: 'api_get_avis', methods: ['GET'])]
+    public function getAvisForRando(int $randoId, RandoRepository $randoRepository): JsonResponse
+    {
+        $rando = $randoRepository->find($randoId);
+
+        if (!$rando) {
+            return new JsonResponse(['error' => 'Rando non trouvée.'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $avisList = $rando->getAvis()->filter(function ($avis) {
+            return $avis->getApproved(); // Filtrer seulement les avis approuvés
+        });
+
+        return $this->json($avisList->toArray());
+    }
+
 }
