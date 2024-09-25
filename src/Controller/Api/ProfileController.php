@@ -47,6 +47,12 @@ class ProfileController extends AbstractController
             $user->setUsername($data['username']);
         }
 
+        // Mise à jour du mot de passe
+        if (isset($data['newPassword'])) {
+            $encodedPassword = $passwordHasher->hashPassword($user, $data['newPassword']);
+            $user->setPassword($encodedPassword);
+        }
+
         $entityManager->persist($user);
         $entityManager->flush();
 

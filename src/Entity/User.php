@@ -24,6 +24,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
+    #[ORM\Column(length: 50, unique: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $username = null;
+
     #[ORM\Column(type: 'json')]
     #[Groups(['user:read'])]
     private array $roles = [];
@@ -95,6 +99,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
+        return $this;
     }
 
     public function getRoles(): array

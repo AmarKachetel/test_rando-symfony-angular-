@@ -28,26 +28,29 @@ class RegisterController extends AbstractController
     public function register(Request $request, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $jwtManager): Response
     {
         $this->logger->info('Accessing /api/register endpoint.');
-
+    
         $data = json_decode($request->getContent(), true);
-
-        if (!isset($data['email']) || !isset($data['password'])) {
+    
+        if (!isset($data['email']) || !isset($data['username']) || !isset($data['password'])) {
             $this->logger->error('Invalid registration data provided.');
             return new JsonResponse(['error' => 'Invalid data'], Response::HTTP_BAD_REQUEST);
         }
-
+    
+        // Créer un nouvel utilisateur et remplir les informations
         $user = new User();
         $user->setEmail($data['email']);
+        $user->setUsername($data['username']); // Ajout de cette ligne
         $hashedPassword = $passwordHasher->hashPassword($user, $data['password']);
         $user->setPassword($hashedPassword);
-
+    
+        // Persister l'utilisateur
         $this->entityManager->persist($user);
         $this->entityManager->flush();
-
+    
         $this->logger->info('User registered successfully: ' . $user->getEmail());
-
+    
         $token = $jwtManager->create($user);
-
+    
         return new JsonResponse(['token' => $token], Response::HTTP_CREATED);
     }
 
@@ -74,7 +77,7 @@ public function login(Request $request, JWTTokenManagerInterface $jwtManager): R
 
     $token = $jwtManager->create($user);
 
-    return new JsonResponse(['token' => $token, 'username' => $user->getEmail()], Response::HTTP_OK);
+    return new JsonResponse(['token' => $token, 'username' => $user->getUsername()], Response::HTTP_OK);
 }
 
 }

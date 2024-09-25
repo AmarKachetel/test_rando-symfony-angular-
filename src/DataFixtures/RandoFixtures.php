@@ -25,12 +25,15 @@ class RandoFixtures extends Fixture
         // Création du premier utilisateur
         $user1 = new User();
         $user1->setEmail('user1@example.com');
+        $user1->setUsername('user1');
         $user1->setPassword($this->passwordHasher->hashPassword($user1, 'password1'));
+        $user1->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
         $manager->persist($user1);
 
         // Création du second utilisateur avec le rôle ADMIN
         $user2 = new User();
         $user2->setEmail('user2@example.com');
+        $user2->setUsername('user2');
         $user2->setPassword($this->passwordHasher->hashPassword($user2, 'password2'));
         $user2->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
         $manager->persist($user2);

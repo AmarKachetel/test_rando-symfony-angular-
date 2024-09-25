@@ -8,6 +8,7 @@ class UserProfileDTO
 {
     public int $id;
     public string $email;
+    public string $username;
     public array $roles;
     public bool $isValidated;
     public array $photos = [];
@@ -20,6 +21,7 @@ class UserProfileDTO
     {
         $this->id = $user->getId();
         $this->email = $user->getEmail();
+        $this->username = $user->getUsername();
         $this->roles = $user->getRoles();
         $this->isValidated = $user->getIsValidated();
 
