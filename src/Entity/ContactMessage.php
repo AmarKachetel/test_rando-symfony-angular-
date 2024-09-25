@@ -1,7 +1,5 @@
 <?php
 
-// src/Entity/ContactMessage.php
-
 namespace App\Entity;
 
 use App\Repository\ContactMessageRepository;
@@ -35,6 +33,7 @@ class ContactMessage
 
     public function __construct()
     {
+        // Initialise la date de création automatiquement lors de l'instanciation de l'objet
         $this->createdAt = new \DateTime();
     }
 

@@ -51,6 +51,8 @@ class AdminController extends AbstractController
     public function createRando(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+        $user = $this->getUser(); 
+        
         $rando = new Rando();
         $rando->setTitle($data['title']);
         $rando->setDescription($data['description']);
@@ -59,12 +61,14 @@ class AdminController extends AbstractController
         $rando->setDuration($data['duration']);
         $rando->setDifficulty($data['difficulty']);
         $rando->setImage($data['image']);
-
+        $rando->setUser($user); 
+    
         $entityManager->persist($rando);
         $entityManager->flush();
-
+    
         return new JsonResponse(['message' => 'Randonnée créée avec succès.'], JsonResponse::HTTP_CREATED);
     }
+    
     
     #[Route('/api/admin/randos/{id}', name: 'admin_get_rando', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN')]
